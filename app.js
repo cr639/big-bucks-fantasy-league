@@ -1,58 +1,356 @@
-const $ = s => document.querySelector(s);
-const initials = name => name.split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase();
-const teamById = id => LEAGUE.teams.find(t=>t.id===id);
+const $ = (s) => document.querySelector(s);
 
-function generateRoundRobin(ids){
-  const arr=[...ids]; const rounds=[]; const n=arr.length;
-  for(let r=0;r<n-1;r++){
-    const games=[];
-    for(let i=0;i<n/2;i++) games.push([arr[i],arr[n-1-i]]);
-    rounds.push(games);
-    arr.splice(1,0,arr.pop());
+const SHEETS = {
+  teams: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQIrLxuCpinaLJ9BnCCszGe-NdecO_2ogrqDq_qcgpdgJyx1APFvJuBcCQKMVGU4_QXDW1fitmnWBKU/pub?gid=0&single=true&output=csv',
+  schedule: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQIrLxuCpinaLJ9BnCCszGe-NdecO_2ogrqDq_qcgpdgJyx1APFvJuBcCQKMVGU4_QXDW1fitmnWBKU/pub?gid=552252590&single=true&output=csv',
+  scores: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQIrLxuCpinaLJ9BnCCszGe-NdecO_2ogrqDq_qcgpdgJyx1APFvJuBcCQKMVGU4_QXDW1fitmnWBKU/pub?gid=1192672834&single=true&output=csv'
+};
+
+let league = {
+  teams: [],
+  schedule: {},
+  scores: {},
+  currentWeek: 1
+};
+
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let field = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    const next = text[i + 1];
+
+    if (char === '"' && inQuotes && next === '"') {
+      field += '"';
+      i++;
+    } else if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === ',' && !inQuotes) {
+      row.push(field);
+      field = '';
+    } else if ((char === '\n' || char === '\r') && !inQuotes) {
+      if (char === '\r' && next === '\n') i++;
+      row.push(field);
+      if (row.some((cell) => cell.trim() !== '')) rows.push(row);
+      row = [];
+      field = '';
+    } else {
+      field += char;
+    }
   }
-  return rounds;
-}
-const schedule=generateRoundRobin(LEAGUE.teams.map(t=>t.id));
 
-function matchupKey(a,b){return `${Math.min(a,b)}-${Math.max(a,b)}`}
-function getScores(week,a,b){const raw=(LEAGUE.scores[week]||{})[matchupKey(a,b)]; if(!raw) return [null,null]; return a<b?raw:[raw[1],raw[0]]}
+  if (field.length || row.length) {
+    row.push(field);
+    if (row.some((cell) => cell.trim() !== '')) rows.push(row);
+  }
 
-function calculateStandings(){
-  const stats={}; LEAGUE.teams.forEach(t=>stats[t.id]={...t,w:0,l:0,pf:0,pa:0,results:[]});
-  schedule.forEach((games,wi)=>games.forEach(([a,b])=>{
-    const [sa,sb]=getScores(wi+1,a,b); if(sa==null||sb==null)return;
-    stats[a].pf+=sa;stats[a].pa+=sb;stats[b].pf+=sb;stats[b].pa+=sa;
-    if(sa>sb){stats[a].w++;stats[b].l++;stats[a].results.push('W');stats[b].results.push('L')}
-    else if(sb>sa){stats[b].w++;stats[a].l++;stats[b].results.push('W');stats[a].results.push('L')}
-  }));
-  const streak=s=>{if(!s.results.length)return '—';const x=s.results.at(-1);let c=0;for(let i=s.results.length-1;i>=0&&s.results[i]===x;i--)c++;return x+c};
-  return Object.values(stats).map(s=>({...s,streak:streak(s)})).sort((a,b)=> b.w-a.w || a.l-b.l || b.pf-a.pf || a.name.localeCompare(b.name));
-}
+  if (!rows.length) return [];
 
-function renderMatchCard(a,b,week){
-  const ta=teamById(a),tb=teamById(b),[sa,sb]=getScores(week,a,b);const st=calculateStandings();
-  const ra=st.find(x=>x.id===a), rb=st.find(x=>x.id===b);
-  const line=(t,s,r)=>`<div class="team-line"><div class="team-icon">${initials(t.name)}</div><div><div class="team-name">${t.name}</div><div class="team-record">${r.w}-${r.l} • ${t.owner}</div></div><div class="score ${s==null?'tbd':''}">${s==null?'TBD':s.toFixed(2)}</div></div>`;
-  return `<article class="match-card"><div class="match-meta"><span>WEEK ${week}</span><span>${sa==null?'UPCOMING':'FINAL'}</span></div>${line(ta,sa,ra)}${line(tb,sb,rb)}</article>`;
+  const headers = rows[0].map((h) => h.trim());
+  return rows.slice(1).map((values) => {
+    const record = {};
+    headers.forEach((header, index) => {
+      record[header] = (values[index] ?? '').trim();
+    });
+    return record;
+  });
 }
 
-function render(){
-  $('#currentWeekLabel').textContent=`Week ${LEAGUE.currentWeek}`;
-  const currentGames=schedule[LEAGUE.currentWeek-1]||[];
-  $('#featuredMatchups').innerHTML=currentGames.slice(0,3).map(g=>renderMatchCard(g[0],g[1],LEAGUE.currentWeek)).join('');
-  const standings=calculateStandings();
-  $('#miniStandings').innerHTML=standings.slice(0,5).map((s,i)=>`<div class="mini-row"><div class="seed">${i+1}</div><div><strong>${s.name}</strong><div class="mini-pf">${s.pf.toFixed(2)} PF</div></div><div class="mini-record">${s.w}-${s.l}</div><div>${s.streak}</div></div>`).join('');
-  const lead=standings[0]; $('#leagueLeader').innerHTML=`<div class="big-name">${lead.name}</div><p>${lead.owner}</p><div class="leader-stats"><div><span>RECORD</span><strong>${lead.w}-${lead.l}</strong></div><div><span>POINTS</span><strong>${lead.pf.toFixed(1)}</strong></div><div><span>STREAK</span><strong>${lead.streak}</strong></div></div>`;
-  $('#standingsBody').innerHTML=standings.map((s,i)=>`<tr><td><span class="seed-pill">${i+1}</span></td><td><div class="team-cell"><span class="team-icon">${initials(s.name)}</span><div>${s.name}<div class="team-record">${s.owner}</div></div></div></td><td><strong>${s.w}</strong></td><td>${s.l}</td><td>${(s.w+s.l)?(s.w/(s.w+s.l)*100).toFixed(1)+'%':'—'}</td><td>${s.pf.toFixed(2)}</td><td>${s.pa.toFixed(2)}</td><td>${(s.pf-s.pa).toFixed(2)}</td><td>${s.streak}</td></tr>`).join('');
-  $('#teamsGrid').innerHTML=LEAGUE.teams.map(t=>`<article class="team-card"><div class="team-icon">${initials(t.name)}</div><h3>${t.name}</h3><p>${t.owner}</p></article>`).join('');
-  $('#weekSelect').innerHTML=schedule.map((_,i)=>`<option value="${i+1}" ${i+1===LEAGUE.currentWeek?'selected':''}>Week ${i+1}</option>`).join('')+'<option value="16">Week 16 • Semifinals</option><option value="17">Week 17 • Championship</option>';
-  renderWeek(LEAGUE.currentWeek);
+async function fetchCSV(url) {
+  // Cache-buster helps league members see commissioner updates quickly.
+  const separator = url.includes('?') ? '&' : '?';
+  const response = await fetch(`${url}${separator}_=${Date.now()}`, { cache: 'no-store' });
+  if (!response.ok) throw new Error(`Google Sheet request failed (${response.status})`);
+  return parseCSV(await response.text());
 }
-function renderWeek(week){
-  if(week<=15) $('#scheduleGrid').innerHTML=schedule[week-1].map(g=>renderMatchCard(g[0],g[1],week)).join('');
-  else $('#scheduleGrid').innerHTML=`<article class="match-card"><div class="match-meta"><span>WEEK ${week}</span><span>PLAYOFFS</span></div><h3>${week===16?'#1 vs #4 • #2 vs #3':'Championship'}</h3><p>Playoff matchups will populate after the regular season.</p></article>`;
+
+function initials(name) {
+  return (name || 'TBD')
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((x) => x[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 }
-$('#weekSelect').addEventListener('change',e=>renderWeek(Number(e.target.value)));
-$('.nav-toggle').addEventListener('click',()=>$('.main-nav').classList.toggle('open'));
-document.querySelectorAll('.main-nav a').forEach(a=>a.addEventListener('click',()=>$('.main-nav').classList.remove('open')));
-render();
+
+function teamById(id) {
+  return league.teams.find((team) => team.id === Number(id));
+}
+
+function scoreFor(week, teamId) {
+  const key = `${Number(week)}-${Number(teamId)}`;
+  return Object.prototype.hasOwnProperty.call(league.scores, key)
+    ? league.scores[key]
+    : null;
+}
+
+function inferCurrentWeek() {
+  for (let week = 1; week <= 15; week++) {
+    const games = league.schedule[week] || [];
+    if (!games.length) continue;
+
+    const weekComplete = games.every(([a, b]) =>
+      scoreFor(week, a) !== null && scoreFor(week, b) !== null
+    );
+
+    if (!weekComplete) return week;
+  }
+  return 15;
+}
+
+function calculateStandings() {
+  const stats = {};
+
+  league.teams.forEach((team) => {
+    stats[team.id] = {
+      ...team,
+      w: 0,
+      l: 0,
+      pf: 0,
+      pa: 0,
+      results: []
+    };
+  });
+
+  for (let week = 1; week <= 15; week++) {
+    const games = league.schedule[week] || [];
+
+    games.forEach(([a, b]) => {
+      const sa = scoreFor(week, a);
+      const sb = scoreFor(week, b);
+      if (sa === null || sb === null || !stats[a] || !stats[b]) return;
+
+      stats[a].pf += sa;
+      stats[a].pa += sb;
+      stats[b].pf += sb;
+      stats[b].pa += sa;
+
+      if (sa > sb) {
+        stats[a].w++;
+        stats[b].l++;
+        stats[a].results.push('W');
+        stats[b].results.push('L');
+      } else if (sb > sa) {
+        stats[b].w++;
+        stats[a].l++;
+        stats[b].results.push('W');
+        stats[a].results.push('L');
+      }
+      // A tied DK score does not create a W/L until a league tie rule is added.
+    });
+  }
+
+  const streak = (stat) => {
+    if (!stat.results.length) return '—';
+    const latest = stat.results.at(-1);
+    let count = 0;
+    for (let i = stat.results.length - 1; i >= 0 && stat.results[i] === latest; i--) count++;
+    return `${latest}${count}`;
+  };
+
+  return Object.values(stats)
+    .map((stat) => ({ ...stat, streak: streak(stat) }))
+    .sort((a, b) =>
+      b.w - a.w ||
+      a.l - b.l ||
+      b.pf - a.pf ||
+      a.name.localeCompare(b.name)
+    );
+}
+
+function renderMatchCard(a, b, week, standings) {
+  const teamA = teamById(a);
+  const teamB = teamById(b);
+  if (!teamA || !teamB) return '';
+
+  const scoreA = scoreFor(week, a);
+  const scoreB = scoreFor(week, b);
+  const statA = standings.find((x) => x.id === a) || { w: 0, l: 0 };
+  const statB = standings.find((x) => x.id === b) || { w: 0, l: 0 };
+  const final = scoreA !== null && scoreB !== null;
+
+  const line = (team, score, stat) => `
+    <div class="team-line">
+      <div class="team-icon">${initials(team.abbreviation || team.name)}</div>
+      <div>
+        <div class="team-name">${team.name}</div>
+        <div class="team-record">${stat.w}-${stat.l}${team.owner ? ` • ${team.owner}` : ''}</div>
+      </div>
+      <div class="score ${score === null ? 'tbd' : ''}">${score === null ? 'TBD' : score.toFixed(2)}</div>
+    </div>`;
+
+  return `
+    <article class="match-card">
+      <div class="match-meta"><span>WEEK ${week}</span><span>${final ? 'FINAL' : 'UPCOMING'}</span></div>
+      ${line(teamA, scoreA, statA)}
+      ${line(teamB, scoreB, statB)}
+    </article>`;
+}
+
+function renderWeek(week) {
+  const standings = calculateStandings();
+  if (week <= 15) {
+    const games = league.schedule[week] || [];
+    $('#scheduleGrid').innerHTML = games.length
+      ? games.map(([a, b]) => renderMatchCard(a, b, week, standings)).join('')
+      : '<article class="match-card"><h3>Schedule coming soon</h3></article>';
+  } else {
+    $('#scheduleGrid').innerHTML = `
+      <article class="match-card">
+        <div class="match-meta"><span>WEEK ${week}</span><span>PLAYOFFS</span></div>
+        <h3>${week === 16 ? '#1 vs #4 • #2 vs #3' : 'Championship'}</h3>
+        <p>Playoff matchups will populate after the regular season.</p>
+      </article>`;
+  }
+}
+
+function render() {
+  const standings = calculateStandings();
+  const currentGames = league.schedule[league.currentWeek] || [];
+
+  $('#currentWeekLabel').textContent = `Week ${league.currentWeek}`;
+
+  $('#featuredMatchups').innerHTML = currentGames
+    .slice(0, 3)
+    .map(([a, b]) => renderMatchCard(a, b, league.currentWeek, standings))
+    .join('');
+
+  $('#miniStandings').innerHTML = standings.slice(0, 5).map((stat, index) => `
+    <div class="mini-row">
+      <div class="seed">${index + 1}</div>
+      <div><strong>${stat.name}</strong><div class="mini-pf">${stat.pf.toFixed(2)} PF</div></div>
+      <div class="mini-record">${stat.w}-${stat.l}</div>
+      <div>${stat.streak}</div>
+    </div>`).join('');
+
+  const leader = standings[0];
+  $('#leagueLeader').innerHTML = leader ? `
+    <div class="big-name">${leader.name}</div>
+    <p>${leader.owner || 'Owner TBD'}</p>
+    <div class="leader-stats">
+      <div><span>RECORD</span><strong>${leader.w}-${leader.l}</strong></div>
+      <div><span>POINTS</span><strong>${leader.pf.toFixed(1)}</strong></div>
+      <div><span>STREAK</span><strong>${leader.streak}</strong></div>
+    </div>` : '';
+
+  $('#standingsBody').innerHTML = standings.map((stat, index) => `
+    <tr>
+      <td><span class="seed-pill">${index + 1}</span></td>
+      <td><div class="team-cell"><span class="team-icon">${initials(stat.abbreviation || stat.name)}</span><div>${stat.name}<div class="team-record">${stat.owner || ''}</div></div></div></td>
+      <td><strong>${stat.w}</strong></td>
+      <td>${stat.l}</td>
+      <td>${(stat.w + stat.l) ? `${(stat.w / (stat.w + stat.l) * 100).toFixed(1)}%` : '—'}</td>
+      <td>${stat.pf.toFixed(2)}</td>
+      <td>${stat.pa.toFixed(2)}</td>
+      <td>${(stat.pf - stat.pa).toFixed(2)}</td>
+      <td>${stat.streak}</td>
+    </tr>`).join('');
+
+  $('#teamsGrid').innerHTML = league.teams.map((team) => `
+    <article class="team-card">
+      <div class="team-icon">${initials(team.abbreviation || team.name)}</div>
+      <h3>${team.name}</h3>
+      <p>${team.owner || 'Owner TBD'}</p>
+    </article>`).join('');
+
+  $('#weekSelect').innerHTML = Array.from({ length: 15 }, (_, index) => {
+    const week = index + 1;
+    return `<option value="${week}" ${week === league.currentWeek ? 'selected' : ''}>Week ${week}</option>`;
+  }).join('') + '<option value="16">Week 16 • Semifinals</option><option value="17">Week 17 • Championship</option>';
+
+  renderWeek(league.currentWeek);
+}
+
+function fallbackLeague() {
+  const fallbackTeams = typeof LEAGUE !== 'undefined' && Array.isArray(LEAGUE.teams)
+    ? LEAGUE.teams.map((team) => ({ ...team, abbreviation: '' }))
+    : Array.from({ length: 16 }, (_, index) => ({
+        id: index + 1,
+        name: `Team ${index + 1}`,
+        owner: '',
+        abbreviation: ''
+      }));
+
+  const ids = fallbackTeams.map((team) => team.id);
+  const rotation = [...ids];
+  const fallbackSchedule = {};
+
+  for (let round = 1; round <= ids.length - 1; round++) {
+    fallbackSchedule[round] = [];
+    for (let i = 0; i < ids.length / 2; i++) {
+      fallbackSchedule[round].push([rotation[i], rotation[ids.length - 1 - i]]);
+    }
+    rotation.splice(1, 0, rotation.pop());
+  }
+
+  return {
+    teams: fallbackTeams,
+    schedule: fallbackSchedule,
+    scores: {},
+    currentWeek: 1
+  };
+}
+
+async function loadLeague() {
+  try {
+    const [teamRows, scheduleRows, scoreRows] = await Promise.all([
+      fetchCSV(SHEETS.teams),
+      fetchCSV(SHEETS.schedule),
+      fetchCSV(SHEETS.scores)
+    ]);
+
+    const teams = teamRows
+      .map((row) => ({
+        id: Number(row['Team ID']),
+        name: row['Team Name'] || `Team ${row['Team ID']}`,
+        owner: row['Owner Name'] || '',
+        abbreviation: row['Abbreviation'] || ''
+      }))
+      .filter((team) => Number.isFinite(team.id));
+
+    const schedule = {};
+    scheduleRows.forEach((row) => {
+      const week = Number(row['Week']);
+      const team1 = Number(row['Team 1 ID']);
+      const team2 = Number(row['Team 2 ID']);
+      if (!Number.isFinite(week) || !Number.isFinite(team1) || !Number.isFinite(team2)) return;
+      if (!schedule[week]) schedule[week] = [];
+      schedule[week].push([team1, team2]);
+    });
+
+    const scores = {};
+    scoreRows.forEach((row) => {
+      const week = Number(row['Week']);
+      const teamId = Number(row['Team ID']);
+      const rawScore = row['DK Score'];
+      if (!Number.isFinite(week) || !Number.isFinite(teamId) || rawScore === '') return;
+      const score = Number(rawScore);
+      if (Number.isFinite(score)) scores[`${week}-${teamId}`] = score;
+    });
+
+    if (teams.length !== 16) {
+      console.warn(`Expected 16 teams, received ${teams.length}.`);
+    }
+
+    league = { teams, schedule, scores, currentWeek: 1 };
+    league.currentWeek = inferCurrentWeek();
+    render();
+  } catch (error) {
+    console.error('Could not load Google Sheet data:', error);
+    league = fallbackLeague();
+    render();
+
+    const heading = document.querySelector('#featured-title');
+    if (heading) heading.insertAdjacentHTML('afterend', '<p style="color:#d95f13;font-weight:700">Live Google Sheet data could not be loaded. Showing backup league data.</p>');
+  }
+}
+
+$('#weekSelect').addEventListener('change', (event) => renderWeek(Number(event.target.value)));
+$('.nav-toggle').addEventListener('click', () => $('.main-nav').classList.toggle('open'));
+document.querySelectorAll('.main-nav a').forEach((link) => link.addEventListener('click', () => $('.main-nav').classList.remove('open')));
+
+loadLeague();
