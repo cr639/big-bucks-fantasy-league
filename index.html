@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Big Bucks Fantasy League</title>
+  <meta name="description" content="Big Bucks Fantasy League — 16 teams, season-long DFS, one champion." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#home" aria-label="Big Bucks Fantasy League home">
+        <img src="assets/logo.png" alt="Big Bucks Fantasy League logo" />
+        <div class="brand-text"><span>BIG BUCKS</span><small>FANTASY LEAGUE</small></div>
+      </a>
+      <button class="nav-toggle" aria-label="Open navigation">☰</button>
+      <nav class="main-nav">
+        <a href="#home">Home</a>
+        <a href="#standings">Standings</a>
+        <a href="#schedule">Schedule</a>
+        <a href="#teams">Teams</a>
+        <a href="#rules">Rules</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section id="home" class="hero section-dark">
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <div class="eyebrow">2026 SEASON</div>
+          <h1>16 TEAMS.<br><span>15 WEEKS.</span><br>ONE BIG BUCK.</h1>
+          <p>Season-long fantasy football with a DFS twist. Every week, owners build DraftKings lineups and go head-to-head for the win.</p>
+          <div class="hero-actions">
+            <a class="btn btn-gold" href="#schedule">View Matchups</a>
+            <a class="btn btn-outline" href="#standings">View Standings</a>
+          </div>
+        </div>
+        <div class="hero-logo-wrap"><img class="hero-logo" src="assets/logo.png" alt="Big Bucks Fantasy League crest" /></div>
+      </div>
+    </section>
+
+    <section class="week-bar">
+      <div><span class="label">CURRENT WEEK</span><strong id="currentWeekLabel">Week 1</strong></div>
+      <div><span class="label">FORMAT</span><strong>Head-to-Head DFS</strong></div>
+      <div><span class="label">PLAYOFFS</span><strong>Top 4 • Weeks 16–17</strong></div>
+      <div><span class="label">TIEBREAKER</span><strong>Total DK Points</strong></div>
+    </section>
+
+    <section class="content-section" aria-labelledby="featured-title">
+      <div class="section-heading"><div><div class="eyebrow orange">THIS WEEK</div><h2 id="featured-title">Featured Matchups</h2></div><a href="#schedule" class="text-link">Full schedule →</a></div>
+      <div id="featuredMatchups" class="matchup-grid"></div>
+    </section>
+
+    <section class="content-section split-section">
+      <div class="panel">
+        <div class="section-heading compact"><div><div class="eyebrow orange">PLAYOFF RACE</div><h2>Top 5</h2></div><a href="#standings" class="text-link">All standings →</a></div>
+        <div id="miniStandings"></div>
+      </div>
+      <div class="panel leader-panel">
+        <div class="eyebrow orange">LEAGUE LEADER</div>
+        <div id="leagueLeader" class="leader-card"></div>
+      </div>
+    </section>
+
+    <section id="standings" class="content-section anchor-pad">
+      <div class="section-heading"><div><div class="eyebrow orange">2026 SEASON</div><h2>Standings</h2><p>Record first. Total DraftKings points is the first tiebreaker.</p></div></div>
+      <div class="table-wrap">
+        <table class="standings-table">
+          <thead><tr><th>Seed</th><th>Team</th><th>W</th><th>L</th><th>Win %</th><th>PF</th><th>PA</th><th>Diff</th><th>Streak</th></tr></thead>
+          <tbody id="standingsBody"></tbody>
+        </table>
+      </div>
+      <div class="legend"><span><i class="dot playoff"></i> Playoff position</span><span><i class="dot bubble"></i> First team out</span></div>
+    </section>
+
+    <section id="schedule" class="content-section anchor-pad schedule-section">
+      <div class="section-heading schedule-heading">
+        <div><div class="eyebrow orange">ROUND ROBIN</div><h2>Schedule & Results</h2><p>Every team plays every other team once during Weeks 1–15.</p></div>
+        <div class="week-control"><label for="weekSelect">Week</label><select id="weekSelect"></select></div>
+      </div>
+      <div id="scheduleGrid" class="matchup-grid full"></div>
+    </section>
+
+    <section id="teams" class="content-section anchor-pad">
+      <div class="section-heading"><div><div class="eyebrow orange">THE FIELD</div><h2>Teams</h2><p>Placeholder names for now — swap these out once the league is finalized.</p></div></div>
+      <div id="teamsGrid" class="teams-grid"></div>
+    </section>
+
+    <section id="rules" class="content-section anchor-pad">
+      <div class="section-heading"><div><div class="eyebrow orange">LEAGUE FORMAT</div><h2>Rules</h2></div></div>
+      <div class="rules-grid">
+        <article><span>01</span><h3>16 Teams</h3><p>Sixteen owners compete in one league table with no divisions.</p></article>
+        <article><span>02</span><h3>DraftKings Lineups</h3><p>Each owner enters a weekly DFS lineup on DraftKings. That lineup's final DK score becomes the team's score for the week.</p></article>
+        <article><span>03</span><h3>Head-to-Head</h3><p>Eight matchups are played each week. The higher DraftKings score earns the win.</p></article>
+        <article><span>04</span><h3>15-Week Round Robin</h3><p>Weeks 1–15. Every team plays every other team exactly once.</p></article>
+        <article><span>05</span><h3>Tiebreaker</h3><p>Standings are sorted by overall record, then total DraftKings points scored.</p></article>
+        <article><span>06</span><h3>Top 4 Playoffs</h3><p>Week 16: #1 vs #4 and #2 vs #3. Week 17: championship between the semifinal winners.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer><img src="assets/logo.png" alt="" /><div><strong>BIG BUCKS FANTASY LEAGUE</strong><span>Season-long DFS. Built for bragging rights.</span></div></footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
