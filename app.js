@@ -122,10 +122,22 @@ function scoreFor(week, teamId) {
 }
 
 function inferCurrentWeek() {
+
+  // If no scores have been entered yet,
+  // the league is still on Week 1.
+  if (Object.keys(league.scores).length === 0) {
+    return 1;
+  }
+
   for (let week = 1; week <= 15; week++) {
+
     const games = league.schedule[week] || [];
 
-    if (!games.length) continue;
+    // If a week is missing schedule data,
+    // don't skip ahead past it.
+    if (!games.length) {
+      return week;
+    }
 
     const weekComplete = games.every(([a, b]) => {
       return (
