@@ -33,10 +33,9 @@
       <div class="hero-inner">
         <div class="hero-copy">
           <div class="eyebrow">2026 SEASON</div>
-          <h1>16 TEAMS.<br><span>15 WEEKS.</span><br>ONE BIG BUCK.</h1>
-          <p>Season-long fantasy football with a DFS twist. Every week, owners build DraftKings lineups and go head-to-head for the win.</p>
+          <h1>BIG LINEUPS.<br><span>BIG WINS.</span><br>BIG BUCKS.</h1>
           <div class="hero-actions">
-            <a class="btn btn-gold" href="#schedule">View Matchups</a>
+            <a class="btn btn-gold" href="#this-week">This Week</a>
             <a class="btn btn-outline" href="#standings">View Standings</a>
           </div>
         </div>
@@ -46,29 +45,53 @@
 
     <section class="week-bar">
       <div><span class="label">CURRENT WEEK</span><strong id="currentWeekLabel">Week 1</strong></div>
-      <div><span class="label">FORMAT</span><strong>Head-to-Head DFS</strong></div>
       <div><span class="label">PLAYOFFS</span><strong>Top 4 • Weeks 16–17</strong></div>
-      <div><span class="label">TIEBREAKER</span><strong>Total DK Points</strong></div>
+      <div><span class="label">TIEBREAKER</span><strong>Total DK Points For</strong></div>
     </section>
 
-    <section class="content-section" aria-labelledby="featured-title">
-      <div class="section-heading"><div><div class="eyebrow orange">THIS WEEK</div><h2 id="featured-title">Featured Matchups</h2></div><a href="#schedule" class="text-link">Full schedule →</a></div>
-      <div id="featuredMatchups" class="matchup-grid"></div>
+    <section class="content-section dashboard-strip" aria-label="League leaders">
+      <div class="stat-card accent-gold">
+        <span class="stat-kicker">WEEKLY HIGH SCORE</span>
+        <div id="weeklyHighScore" class="stat-content"></div>
+      </div>
+      <div class="stat-card accent-orange">
+        <span class="stat-kicker">SEASON POINTS LEADER</span>
+        <div id="seasonPointsLeader" class="stat-content"></div>
+      </div>
+      <div class="stat-card accent-brown">
+        <span class="stat-kicker">CURRENT #1 SEED</span>
+        <div id="numberOneSeed" class="stat-content"></div>
+      </div>
     </section>
 
-    <section class="content-section split-section">
-      <div class="panel">
-        <div class="section-heading compact"><div><div class="eyebrow orange">PLAYOFF RACE</div><h2>Top 5</h2></div><a href="#standings" class="text-link">All standings →</a></div>
-        <div id="miniStandings"></div>
+    <section id="this-week" class="content-section anchor-pad" aria-labelledby="featured-title">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow orange">LIVE SCOREBOARD</div>
+          <h2 id="featured-title">This Week</h2>
+          <p id="weekStatusText">All eight head-to-head matchups.</p>
+        </div>
+        <a href="#schedule" class="text-link">Full schedule →</a>
+      </div>
+      <div id="featuredMatchups" class="matchup-grid home-scoreboard"></div>
+    </section>
+
+    <section class="content-section split-section home-bottom">
+      <div class="panel playoff-panel">
+        <div class="section-heading compact">
+          <div><div class="eyebrow orange">IF THE SEASON ENDED TODAY</div><h2>Playoff Picture</h2></div>
+          <a href="#standings" class="text-link">Full standings →</a>
+        </div>
+        <div id="playoffPicture" class="playoff-picture"></div>
       </div>
       <div class="panel leader-panel">
-        <div class="eyebrow orange">LEAGUE LEADER</div>
+        <div class="eyebrow">LEAGUE LEADER</div>
         <div id="leagueLeader" class="leader-card"></div>
       </div>
     </section>
 
     <section id="standings" class="content-section anchor-pad">
-      <div class="section-heading"><div><div class="eyebrow orange">2026 SEASON</div><h2>Standings</h2><p>Record first. Total DraftKings points is the first tiebreaker.</p></div></div>
+      <div class="section-heading"><div><div class="eyebrow orange">2026 SEASON</div><h2>Standings</h2><p>Record first. Total DK Points For is the first tiebreaker.</p></div></div>
       <div class="table-wrap">
         <table class="standings-table">
           <thead><tr><th>Seed</th><th>Team</th><th>W</th><th>L</th><th>Win %</th><th>PF</th><th>PA</th><th>Diff</th><th>Streak</th></tr></thead>
@@ -80,14 +103,14 @@
 
     <section id="schedule" class="content-section anchor-pad schedule-section">
       <div class="section-heading schedule-heading">
-        <div><div class="eyebrow orange">ROUND ROBIN</div><h2>Schedule & Results</h2><p>Every team plays every other team once during Weeks 1–15.</p></div>
+        <div><div class="eyebrow orange">REGULAR SEASON</div><h2>Schedule & Results</h2><p>Weeks 1–15. Every team plays every other team once.</p></div>
         <div class="week-control"><label for="weekSelect">Week</label><select id="weekSelect"></select></div>
       </div>
       <div id="scheduleGrid" class="matchup-grid full"></div>
     </section>
 
     <section id="teams" class="content-section anchor-pad">
-      <div class="section-heading"><div><div class="eyebrow orange">THE FIELD</div><h2>Teams</h2><p>Placeholder names for now — swap these out once the league is finalized.</p></div></div>
+      <div class="section-heading"><div><div class="eyebrow orange">THE FIELD</div><h2>Teams</h2><p>The 2026 Big Bucks field.</p></div></div>
       <div id="teamsGrid" class="teams-grid"></div>
     </section>
 
@@ -97,14 +120,14 @@
         <article><span>01</span><h3>16 Teams</h3><p>Sixteen owners compete in one league table with no divisions.</p></article>
         <article><span>02</span><h3>DraftKings Lineups</h3><p>Each owner enters a weekly DFS lineup on DraftKings. That lineup's final DK score becomes the team's score for the week.</p></article>
         <article><span>03</span><h3>Head-to-Head</h3><p>Eight matchups are played each week. The higher DraftKings score earns the win.</p></article>
-        <article><span>04</span><h3>15-Week Round Robin</h3><p>Weeks 1–15. Every team plays every other team exactly once.</p></article>
-        <article><span>05</span><h3>Tiebreaker</h3><p>Standings are sorted by overall record, then total DraftKings points scored.</p></article>
+        <article><span>04</span><h3>15-Week Regular Season</h3><p>Weeks 1–15. Every team plays every other team exactly once.</p></article>
+        <article><span>05</span><h3>Tiebreaker</h3><p>Standings are sorted by overall record, then Total DK Points For.</p></article>
         <article><span>06</span><h3>Top 4 Playoffs</h3><p>Week 16: #1 vs #4 and #2 vs #3. Week 17: championship between the semifinal winners.</p></article>
       </div>
     </section>
   </main>
 
-  <footer><img src="logo.png" alt="" /><div><strong>BIG BUCKS FANTASY LEAGUE</strong><span>Season-long DFS. Built for bragging rights.</span></div></footer>
+  <footer><img src="logo.png" alt="" /><div><strong>BIG BUCKS FANTASY LEAGUE</strong><span>Season-long DFS. Built for big game hunters.</span></div></footer>
 
   <script src="data.js"></script>
   <script src="app.js"></script>

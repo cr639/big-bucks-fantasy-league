@@ -172,9 +172,11 @@ function renderMatchCard(a, b, week, standings) {
   const statA = standings.find((x) => x.id === a) || { w: 0, l: 0 };
   const statB = standings.find((x) => x.id === b) || { w: 0, l: 0 };
   const final = scoreA !== null && scoreB !== null;
+  const winnerA = final && scoreA > scoreB;
+  const winnerB = final && scoreB > scoreA;
 
-  const line = (team, score, stat) => `
-    <div class="team-line">
+  const line = (team, score, stat, isWinner) => `
+    <div class="team-line ${isWinner ? 'winner' : ''}">
       <div class="team-icon">${initials(team.abbreviation || team.name)}</div>
       <div>
         <div class="team-name">${team.name}</div>
@@ -186,11 +188,10 @@ function renderMatchCard(a, b, week, standings) {
   return `
     <article class="match-card">
       <div class="match-meta"><span>WEEK ${week}</span><span>${final ? 'FINAL' : 'UPCOMING'}</span></div>
-      ${line(teamA, scoreA, statA)}
-      ${line(teamB, scoreB, statB)}
+      ${line(teamA, scoreA, statA, winnerA)}
+      ${line(teamB, scoreB, statB, winnerB)}
     </article>`;
 }
-
 function renderWeek(week) {
   const standings = calculateStandings();
   if (week <= 15) {
@@ -211,23 +212,57 @@ function renderWeek(week) {
 function render() {
   const standings = calculateStandings();
   const currentGames = league.schedule[league.currentWeek] || [];
+  const currentWeekScores = league.teams
+    .map((team) => ({ team, score: scoreFor(league.currentWeek, team.id) }))
+    .filter((item) => item.score !== null)
+    .sort((a, b) => b.score - a.score);
+
+  const seasonPoints = [...standings].sort((a, b) => b.pf - a.pf || b.w - a.w);
+  const leader = standings[0];
+  const pointsLeader = seasonPoints[0];
+  const weeklyLeader = currentWeekScores[0];
+  const completedGames = currentGames.filter(([a, b]) => scoreFor(league.currentWeek, a) !== null && scoreFor(league.currentWeek, b) !== null).length;
 
   $('#currentWeekLabel').textContent = `Week ${league.currentWeek}`;
+  $('#weekStatusText').textContent = completedGames
+    ? `${completedGames} of ${currentGames.length} matchups final.`
+    : 'All eight head-to-head matchups.';
 
-  $('#featuredMatchups').innerHTML = currentGames
-    .slice(0, 3)
-    .map(([a, b]) => renderMatchCard(a, b, league.currentWeek, standings))
-    .join('');
+  $('#featuredMatchups').innerHTML = currentGames.length
+    ? currentGames.map(([a, b]) => renderMatchCard(a, b, league.currentWeek, standings)).join('')
+    : '<article class="match-card"><h3>Schedule coming soon</h3></article>';
 
-  $('#miniStandings').innerHTML = standings.slice(0, 5).map((stat, index) => `
-    <div class="mini-row">
-      <div class="seed">${index + 1}</div>
-      <div><strong>${stat.name}</strong><div class="mini-pf">${stat.pf.toFixed(2)} PF</div></div>
-      <div class="mini-record">${stat.w}-${stat.l}</div>
-      <div>${stat.streak}</div>
+  $('#weeklyHighScore').innerHTML = weeklyLeader ? `
+    <div class="stat-main">${weeklyLeader.team.name}</div>
+    <div class="stat-sub"><span class="stat-value">${weeklyLeader.score.toFixed(2)}</span> DK points • Week ${league.currentWeek}</div>` : `
+    <div class="stat-main">Up for grabs</div>
+    <div class="stat-sub">Week ${league.currentWeek} scores have not been posted yet.</div>`;
+
+  $('#seasonPointsLeader').innerHTML = pointsLeader && pointsLeader.pf > 0 ? `
+    <div class="stat-main">${pointsLeader.name}</div>
+    <div class="stat-sub"><span class="stat-value">${pointsLeader.pf.toFixed(2)}</span> total DK points</div>` : `
+    <div class="stat-main">Season starts soon</div>
+    <div class="stat-sub">Points leader will appear after Week 1.</div>`;
+
+  $('#numberOneSeed').innerHTML = leader ? `
+    <div class="stat-main">${leader.name}</div>
+    <div class="stat-sub"><span class="stat-value">${leader.w}-${leader.l}</span> • ${leader.pf.toFixed(2)} PF</div>` : '<div class="loading-note">Waiting for league data…</div>';
+
+  const playoffRows = standings.slice(0, 4).map((stat, index) => `
+    <div class="playoff-row">
+      <div class="playoff-seed">${index + 1}</div>
+      <div><div class="playoff-team">${stat.name}</div><div class="playoff-meta">${stat.pf.toFixed(2)} PF • ${stat.streak}</div></div>
+      <div class="playoff-record">${stat.w}-${stat.l}</div>
     </div>`).join('');
+  const bubble = standings[4];
+  $('#playoffPicture').innerHTML = playoffRows + (bubble ? `
+    <div class="cut-line">PLAYOFF CUT</div>
+    <div class="playoff-row">
+      <div class="playoff-seed" style="background:#f2dfcf;color:#d95f13">5</div>
+      <div><div class="playoff-team">${bubble.name}</div><div class="playoff-meta">First team out • ${bubble.pf.toFixed(2)} PF</div></div>
+      <div class="playoff-record">${bubble.w}-${bubble.l}</div>
+    </div>` : '');
 
-  const leader = standings[0];
   $('#leagueLeader').innerHTML = leader ? `
     <div class="big-name">${leader.name}</div>
     <p>${leader.owner || 'Owner TBD'}</p>
@@ -264,7 +299,6 @@ function render() {
 
   renderWeek(league.currentWeek);
 }
-
 function fallbackLeague() {
   const fallbackTeams = typeof LEAGUE !== 'undefined' && Array.isArray(LEAGUE.teams)
     ? LEAGUE.teams.map((team) => ({ ...team, abbreviation: '' }))
@@ -329,7 +363,8 @@ async function loadLeague() {
       const rawScore = row['DK Score'];
       if (!Number.isFinite(week) || !Number.isFinite(teamId) || rawScore === '') return;
       const score = Number(rawScore);
-      if (Number.isFinite(score)) scores[`${week}-${teamId}`] = score;
+      // DraftKings scores are positive. Treat blank/zero placeholder values as unposted.
+      if (Number.isFinite(score) && score > 0) scores[`${week}-${teamId}`] = score;
     });
 
     if (teams.length !== 16) {
