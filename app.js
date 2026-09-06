@@ -423,21 +423,67 @@ async function loadLeague() {
   }
 
   let schedule = backup.schedule;
+
   if (scheduleResult.status === 'fulfilled') {
     const liveSchedule = {};
+
+    const normalizeHeader = (value) =>
+      String(value || '')
+        .replace(/^\uFEFF/, '')
+        .replace(/\u00A0/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+
+    const getValue = (row, wantedHeader) => {
+      const wanted = normalizeHeader(wantedHeader);
+
+      const matchingKey = Object.keys(row).find(
+        (key) => normalizeHeader(key) === wanted
+      );
+
+      return matchingKey ? row[matchingKey] : '';
+    };
+
     scheduleResult.value.forEach((row) => {
-      const week = Number(row['Week']);
-      const team1 = Number(row['Team 1 ID']);
-      const team2 = Number(row['Team 2 ID']);
-      if (!Number.isFinite(week) || !Number.isFinite(team1) || !Number.isFinite(team2)) return;
-      if (!liveSchedule[week]) liveSchedule[week] = [];
+      const week = Number(getValue(row, 'Week'));
+      const team1 = Number(getValue(row, 'Team 1 ID'));
+      const team2 = Number(getValue(row, 'Team 2 ID'));
+
+      if (
+        !Number.isFinite(week) ||
+        !Number.isFinite(team1) ||
+        !Number.isFinite(team2) ||
+        week < 1 ||
+        week > 15 ||
+        team1 < 1 ||
+        team1 > 16 ||
+        team2 < 1 ||
+        team2 > 16
+      ) {
+        return;
+      }
+
+      if (!liveSchedule[week]) {
+        liveSchedule[week] = [];
+      }
+
       liveSchedule[week].push([team1, team2]);
     });
-    if (Object.keys(liveSchedule).length) schedule = liveSchedule;
-    else warnings.push('Schedule feed was reachable but contained no usable matchups.');
+
+    if (Object.keys(liveSchedule).length) {
+      schedule = liveSchedule;
+    } else {
+      console.warn('Raw schedule rows:', scheduleResult.value);
+      warnings.push(
+        'Schedule feed was reachable but contained no usable matchups.'
+      );
+    }
   } else {
     console.error('Schedule feed failed:', scheduleResult.reason);
-    warnings.push('Schedule could not be loaded; backup schedule is being shown.');
+    warnings.push(
+      'Schedule could not be loaded; backup schedule is being shown.'
+    );
   }
 
   let scores = {};
