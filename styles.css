@@ -8,6 +8,63 @@
 @media(max-width:850px){.dashboard-strip{grid-template-columns:1fr}.home-scoreboard{grid-template-columns:1fr}}
 
 
-/* V4 rules + payouts */
-.rules-grid .important-rule{border:2px solid var(--orange);position:relative;background:#fff9ee}.important-badge{position:absolute;top:16px;right:16px;background:var(--orange);color:#fff;border-radius:999px;padding:5px 9px;font-size:8px;letter-spacing:1.2px;font-weight:900}.rules-grid .important-rule strong{color:var(--orange)}.additional-rules{margin-top:28px;background:var(--brown);color:#fff;border-radius:12px;padding:26px;box-shadow:var(--shadow)}.additional-rules .eyebrow{margin-bottom:18px}.additional-rules-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.additional-rules-grid>div{background:#351d11;border:1px solid #51301e;border-radius:9px;padding:16px}.additional-rules-grid strong{display:block;color:var(--gold);font-size:13px;margin-bottom:6px}.additional-rules-grid span{display:block;color:#e8d6c3;font-size:12px;line-height:1.55}.payouts-section{background:linear-gradient(135deg,#241309 0%,#3a1c0c 55%,#5a2d0f 100%);color:#fff}.payouts-inner{max-width:1180px;margin:auto;padding:70px 24px}.payouts-heading{align-items:center}.payouts-heading h2{font-family:'Archivo Black',sans-serif;font-size:38px;letter-spacing:-1px}.payouts-heading p{color:#d9c2ad}.season-commitment{text-align:right;background:rgba(255,255,255,.06);border:1px solid rgba(255,214,90,.35);border-radius:12px;padding:14px 18px;min-width:155px}.season-commitment span{display:block;color:#d9c2ad;font-size:9px;letter-spacing:1.5px;font-weight:800}.season-commitment strong{display:block;color:var(--gold);font-family:'Archivo Black';font-size:34px;margin-top:3px}.money-breakdown{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:24px}.money-breakdown article{background:#fffaf0;color:var(--ink);border-radius:12px;padding:24px;border:1px solid #e5c891}.money-kicker{display:block;color:var(--orange);font-size:10px;letter-spacing:1.8px;font-weight:900;margin-bottom:10px}.money-breakdown strong{display:block;font-family:'Archivo Black';font-size:38px}.money-breakdown strong span{font-family:Inter;font-size:15px;color:var(--muted);margin-left:4px}.money-breakdown p{color:var(--muted);line-height:1.6;font-size:13px;margin:10px 0 0}.payout-cards{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;margin-top:16px}.payout-card{border-radius:12px;padding:28px;position:relative;overflow:hidden}.payout-card span{display:block;font-size:10px;letter-spacing:2px;font-weight:900;margin-bottom:8px}.payout-card strong{display:block;font-family:'Archivo Black';font-size:56px;line-height:1}.payout-card p{margin:10px 0 0;font-size:13px;line-height:1.5}.payout-card.champion{background:var(--gold);color:var(--brown)}.payout-card.points{background:var(--orange);color:#fff}.payout-card.points p{color:#ffe8d8}.payout-card.champion p{color:#6a431a}
-@media(max-width:850px){.additional-rules-grid,.money-breakdown,.payout-cards{grid-template-columns:1fr}.season-commitment{text-align:left}.payouts-heading{align-items:flex-start}.payout-card strong{font-size:46px}}
+/* V4 rules + payouts — polished layout */
+.rules-grid .important-rule{border:2px solid var(--orange);position:relative;background:#fff9ee;box-shadow:0 12px 26px rgba(217,95,19,.10)}
+.important-badge{position:absolute;top:16px;right:16px;background:var(--orange);color:#fff;border-radius:999px;padding:6px 10px;font-size:8px;letter-spacing:1.2px;font-weight:900}
+.rules-grid .important-rule strong{color:var(--orange)}
+
+.additional-rules{margin-top:32px;border-top:1px solid #e3cfaa;padding-top:30px}
+.additional-rules .eyebrow{margin-bottom:16px}
+.additional-rules-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.additional-rules-grid>div{background:var(--white);border:1px solid var(--line);border-radius:11px;padding:18px 19px;box-shadow:0 8px 20px rgba(36,19,9,.07);position:relative;overflow:hidden}
+.additional-rules-grid>div:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--gold)}
+.additional-rules-grid>div:last-child{grid-column:1/-1}
+.additional-rules-grid strong{display:block;color:var(--brown);font-family:'Archivo Black',sans-serif;font-size:14px;line-height:1.15;margin-bottom:8px;padding-left:3px}
+.additional-rules-grid span{display:block;color:var(--muted);font-size:13px;line-height:1.55;padding-left:3px}
+
+.payouts-section{background:linear-gradient(135deg,#1b0d06 0%,#2c160b 52%,#4a240d 100%);color:#fff;border-top:4px solid var(--orange)}
+.payouts-inner{max-width:1180px;margin:auto;padding:72px 24px 78px}
+.payouts-heading{align-items:center;margin-bottom:28px}
+.payouts-heading h2{font-family:'Archivo Black',sans-serif;font-size:42px;letter-spacing:-1.4px}
+.payouts-heading p{color:#d6bea7;font-size:15px;margin-top:10px}
+.season-commitment{display:flex;flex-direction:column;justify-content:center;align-items:flex-end;background:rgba(255,255,255,.06);border:1px solid rgba(242,182,50,.45);border-radius:14px;padding:16px 20px;min-width:175px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.season-commitment span{display:block;color:#d9c2ad;font-size:9px;letter-spacing:1.8px;font-weight:900}
+.season-commitment strong{display:block;color:var(--gold);font-family:'Archivo Black';font-size:40px;line-height:1;margin-top:5px}
+
+.money-breakdown{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.money-breakdown article{background:#fffaf0;color:var(--ink);border-radius:14px;padding:26px 28px;border:1px solid #e5c891;box-shadow:0 14px 28px rgba(0,0,0,.14);position:relative;overflow:hidden}
+.money-breakdown article:before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:var(--gold)}
+.money-breakdown article:nth-child(2):before{background:var(--orange)}
+.money-kicker{display:block;color:var(--orange);font-size:10px;letter-spacing:2px;font-weight:900;margin-bottom:10px}
+.money-breakdown strong{display:block;font-family:'Archivo Black';font-size:44px;line-height:1;color:var(--brown)}
+.money-breakdown strong span{font-family:Inter,system-ui,sans-serif;font-size:15px;color:var(--muted);margin-left:5px}
+.money-breakdown p{color:var(--muted);line-height:1.65;font-size:13px;margin:13px 0 0;max-width:520px}
+.money-breakdown b{color:var(--brown)}
+
+.payout-cards{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;margin-top:18px}
+.payout-card{border-radius:14px;padding:30px 30px 28px;position:relative;overflow:hidden;min-height:185px;display:flex;flex-direction:column;justify-content:center;box-shadow:0 14px 28px rgba(0,0,0,.16)}
+.payout-card:after{content:"$";position:absolute;right:20px;bottom:-42px;font-family:'Archivo Black';font-size:180px;line-height:1;opacity:.08;pointer-events:none}
+.payout-card span{display:block;font-size:10px;letter-spacing:2.2px;font-weight:900;margin-bottom:9px;position:relative;z-index:1}
+.payout-card strong{display:block;font-family:'Archivo Black';font-size:60px;line-height:.95;position:relative;z-index:1}
+.payout-card p{margin:12px 0 0;font-size:13px;line-height:1.5;position:relative;z-index:1}
+.payout-card.champion{background:var(--gold);color:var(--brown)}
+.payout-card.champion p{color:#674116}
+.payout-card.points{background:var(--orange);color:#fff}
+.payout-card.points p{color:#ffe8d8}
+
+@media(max-width:850px){
+  .additional-rules-grid,.money-breakdown,.payout-cards{grid-template-columns:1fr}
+  .additional-rules-grid>div:last-child{grid-column:auto}
+  .season-commitment{align-items:flex-start;min-width:0;width:100%}
+  .payouts-heading{align-items:flex-start}
+  .payout-card strong{font-size:50px}
+}
+@media(max-width:520px){
+  .additional-rules-grid>div{padding:16px}
+  .payouts-inner{padding:52px 16px 58px}
+  .payouts-heading h2{font-size:34px}
+  .money-breakdown article{padding:22px}
+  .money-breakdown strong{font-size:38px}
+  .payout-card{padding:25px 22px;min-height:165px}
+  .payout-card strong{font-size:46px}
+}
