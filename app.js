@@ -2,8 +2,8 @@ const $ = (s) => document.querySelector(s);
 
 const SHEETS = {
   teams: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQIrLxuCpinaLJ9BnCCszGe-NdecO_2ogrqDq_qcgpdgJyx1APFvJuBcCQKMVGU4_QXDW1fitmnWBKU/pub?gid=0&single=true&output=csv',
-  schedule: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQIrLxuCpinaLJ9BnCCszGe-NdecO_2ogrqDq_qcgpdgJyx1APFvJuBcCQKMVGU4_QXDW1fitmnWBKU/pub?gid=552252590&single=true&output=csv',
-  scores: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQIrLxuCpinaLJ9BnCCszGe-NdecO_2ogrqDq_qcgpdgJyx1APFvJuBcCQKMVGU4_QXDW1fitmnWBKU/pub?gid=1192672834&single=true&output=csv'
+  schedule: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQIrLxuCpinaLJ9BnCCszGe-NdecO_2ogrqDq_qcgpdgJyx1APFvJuBcCQKMVGU4_QXDW1fitmnWBKU/pub?gid=1192672834&single=true&output=csv',
+  scores: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQIrLxuCpinaLJ9BnCCszGe-NdecO_2ogrqDq_qcgpdgJyx1APFvJuBcCQKMVGU4_QXDW1fitmnWBKU/pub?gid=552252590&single=true&output=csv'
 };
 
 let league = {
