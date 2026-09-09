@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Big Bucks Fantasy League</title>
-  <meta name="description" content="Big Bucks Fantasy League — 16 teams, season-long DFS, one champion." />
+  <meta name="description" content="Big Bucks Fantasy League — 18 teams, season-long DFS, one champion." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -70,7 +70,7 @@
         <div>
           <div class="eyebrow orange">LIVE SCOREBOARD</div>
           <h2 id="featured-title">This Week</h2>
-          <p id="weekStatusText">All eight head-to-head matchups.</p>
+          <p id="weekStatusText">All nine head-to-head matchups.</p>
         </div>
         <a href="#schedule" class="text-link">Full schedule →</a>
       </div>
@@ -92,48 +92,134 @@
     </section>
 
     <section id="standings" class="content-section anchor-pad">
-      <div class="section-heading"><div><div class="eyebrow orange">2026 SEASON</div><h2>Standings</h2><p>Winning percentage first. Then Total DK Points For, followed by head-to-head result.</p></div></div>
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow orange">2026 SEASON</div>
+          <h2>Standings</h2>
+          <p>Winning percentage first. Then Total DK Points For, followed by head-to-head result.</p>
+        </div>
+      </div>
       <div class="table-wrap">
         <table class="standings-table">
-          <thead><tr><th>Seed</th><th>Team</th><th>W</th><th>L</th><th>T</th><th>Win %</th><th>PF</th><th>PA</th><th>Diff</th><th>Streak</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Seed</th>
+              <th>Team</th>
+              <th>W</th>
+              <th>L</th>
+              <th>T</th>
+              <th>Win %</th>
+              <th>PF</th>
+              <th>PA</th>
+              <th>Diff</th>
+              <th>Streak</th>
+            </tr>
+          </thead>
           <tbody id="standingsBody"></tbody>
         </table>
       </div>
-      <div class="legend"><span><i class="dot playoff"></i> Playoff position</span><span><i class="dot bubble"></i> First team out</span></div>
+      <div class="legend">
+        <span><i class="dot playoff"></i> Playoff position</span>
+        <span><i class="dot bubble"></i> First team out</span>
+      </div>
     </section>
 
     <section id="schedule" class="content-section anchor-pad schedule-section">
       <div class="section-heading schedule-heading">
-        <div><div class="eyebrow orange">REGULAR SEASON</div><h2>Schedule & Results</h2><p>Weeks 1–15. Every team plays every other team once.</p></div>
-        <div class="week-control"><label for="weekSelect">Week</label><select id="weekSelect"></select></div>
+        <div>
+          <div class="eyebrow orange">REGULAR SEASON</div>
+          <h2>Schedule & Results</h2>
+          <p>Weeks 1–15. Each team plays 15 head-to-head matchups.</p>
+        </div>
+        <div class="week-control">
+          <label for="weekSelect">Week</label>
+          <select id="weekSelect"></select>
+        </div>
       </div>
       <div id="scheduleGrid" class="matchup-grid full"></div>
     </section>
 
     <section id="teams" class="content-section anchor-pad">
-      <div class="section-heading"><div><div class="eyebrow orange">THE FIELD</div><h2>Teams</h2><p>The 2026 Big Bucks field.</p></div></div>
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow orange">THE FIELD</div>
+          <h2>Teams</h2>
+          <p>The 2026 Big Bucks field.</p>
+        </div>
+      </div>
       <div id="teamsGrid" class="teams-grid"></div>
     </section>
 
     <section id="rules" class="content-section anchor-pad">
-      <div class="section-heading"><div><div class="eyebrow orange">LEAGUE FORMAT</div><h2>Rules</h2></div></div>
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow orange">LEAGUE FORMAT</div>
+          <h2>Rules</h2>
+        </div>
+      </div>
+
       <div class="rules-grid">
-        <article><span>01</span><h3>DraftKings Lineups</h3><p>Each owner submits one lineup in the league-designated DraftKings NFL Classic contest each week. The lineup's final DK score becomes the team's score for that week.</p></article>
-        <article><span>02</span><h3>Head-to-Head</h3><p>Eight matchups are played each week. The team with the higher DraftKings score earns the win.</p></article>
-        <article><span>03</span><h3>Regular Season</h3><p>Weeks 1–15. Every team plays every other team exactly once.</p></article>
-        <article><span>04</span><h3>Standings &amp; Tiebreakers</h3><p>Standings are determined by winning percentage. Ties are first broken by Total DK Points For. If still tied, the next tiebreaker is head-to-head result.</p></article>
-        <article><span>05</span><h3>Top 4 Playoffs</h3><p>The top four teams qualify. Week 16: #1 vs #4 and #2 vs #3. Week 17: championship between the semifinal winners.</p></article>
-        <article class="important-rule"><div class="important-badge">IMPORTANT</div><span>06</span><h3>Lineup Submission Deadline</h3><p>Every owner must join the league-designated DraftKings contest before the first game of that contest kicks off. Miss the deadline and you receive 0 DK points and a loss for that week's matchup. <strong>No exceptions.</strong></p></article>
+        <article>
+          <span>01</span>
+          <h3>DraftKings Lineups</h3>
+          <p>Each owner submits one lineup in the league-designated DraftKings NFL Classic contest each week. The lineup's final DK score becomes the team's score for that week.</p>
+        </article>
+
+        <article>
+          <span>02</span>
+          <h3>Head-to-Head</h3>
+          <p>Nine matchups are played each week. The team with the higher DraftKings score earns the win.</p>
+        </article>
+
+        <article>
+          <span>03</span>
+          <h3>Regular Season</h3>
+          <p>Weeks 1–15. Each team plays 15 regular-season head-to-head matchups.</p>
+        </article>
+
+        <article>
+          <span>04</span>
+          <h3>Standings &amp; Tiebreakers</h3>
+          <p>Standings are determined by winning percentage. Ties are first broken by Total DK Points For. If still tied, the next tiebreaker is head-to-head result.</p>
+        </article>
+
+        <article>
+          <span>05</span>
+          <h3>Top 4 Playoffs</h3>
+          <p>The top four teams qualify. Week 16: #1 vs #4 and #2 vs #3. Week 17: championship between the semifinal winners.</p>
+        </article>
+
+        <article class="important-rule">
+          <div class="important-badge">IMPORTANT</div>
+          <span>06</span>
+          <h3>Lineup Submission Deadline</h3>
+          <p>Every owner must join the league-designated DraftKings contest before the first game of that contest kicks off. Miss the deadline and you receive 0 DK points and a loss for that week's matchup. <strong>No exceptions.</strong></p>
+        </article>
       </div>
 
       <div class="additional-rules">
         <div class="eyebrow orange">ADDITIONAL RULES</div>
         <div class="additional-rules-grid">
-          <div><strong>Regular-Season Ties</strong><span>An exact DK score tie is recorded as a tie. Standings use winning percentage.</span></div>
-          <div><strong>Playoff Ties</strong><span>If a playoff matchup ends in an exact tie, the higher playoff seed advances or wins the championship.</span></div>
-          <div><strong>Total Points Tie</strong><span>If two or more owners finish tied for the most Total DK Points For after Week 17, the $500 prize is split evenly.</span></div>
-          <div><strong>Official Scoring</strong><span>The final score officially recorded by DraftKings is the score used by Big Bucks Fantasy League.</span></div>
-          <div><strong>Weeks 16–17</strong><span>All 16 owners should continue entering the weekly contest. Those scores count toward the season-long Total Points prize.</span></div>
+          <div>
+            <strong>Regular-Season Ties</strong>
+            <span>An exact DK score tie is recorded as a tie. Standings use winning percentage.</span>
+          </div>
+          <div>
+            <strong>Playoff Ties</strong>
+            <span>If a playoff matchup ends in an exact tie, the higher playoff seed advances or wins the championship.</span>
+          </div>
+          <div>
+            <strong>Total Points Tie</strong>
+            <span>If two or more owners finish tied for the most Total DK Points For after Week 17, the $600 prize is split evenly.</span>
+          </div>
+          <div>
+            <strong>Official Scoring</strong>
+            <span>The final score officially recorded by DraftKings is the score used by Big Bucks Fantasy League.</span>
+          </div>
+          <div>
+            <strong>Weeks 16–17</strong>
+            <span>All 18 owners should continue entering the weekly contest. Those scores count toward the season-long Total Points prize.</span>
+          </div>
         </div>
       </div>
     </section>
@@ -141,8 +227,15 @@
     <section id="payouts" class="payouts-section anchor-pad">
       <div class="payouts-inner">
         <div class="section-heading payouts-heading">
-          <div><div class="eyebrow">MONEY ON THE LINE</div><h2>Buy-In &amp; Payouts</h2><p>$185 total season commitment per owner.</p></div>
-          <div class="season-commitment"><span>PER OWNER</span><strong>$185</strong></div>
+          <div>
+            <div class="eyebrow">MONEY ON THE LINE</div>
+            <h2>Buy-In &amp; Payouts</h2>
+            <p>$185 total season commitment per owner.</p>
+          </div>
+          <div class="season-commitment">
+            <span>PER OWNER</span>
+            <strong>$185</strong>
+          </div>
         </div>
 
         <div class="money-breakdown">
@@ -151,22 +244,24 @@
             <strong>$5<span>/week</span></strong>
             <p>Entry into the league-designated DraftKings contest each week. Entry fees and weekly contest winnings are collected and distributed directly through DraftKings.</p>
           </article>
+
           <article>
             <span class="money-kicker">SEASON-LONG POT</span>
             <strong>$100</strong>
-            <p>Each owner contributes $100 to the season-long prize pool. With 16 teams, the season-long pot is <b>$1,600</b>.</p>
+            <p>Each owner contributes $100 to the season-long prize pool. With 18 teams, the season-long pot is <b>$1,800</b>.</p>
           </article>
         </div>
 
         <div class="payout-cards">
           <article class="payout-card champion">
             <span>PLAYOFF CHAMPION</span>
-            <strong>$1,100</strong>
+            <strong>$1,200</strong>
             <p>Winner of the Week 17 Big Bucks Championship.</p>
           </article>
+
           <article class="payout-card points">
             <span>TOTAL POINTS CHAMPION</span>
-            <strong>$500</strong>
+            <strong>$600</strong>
             <p>Most Total DK Points For across Weeks 1–17, including the playoffs.</p>
           </article>
         </div>
@@ -174,7 +269,13 @@
     </section>
   </main>
 
-  <footer><img src="logo.png" alt="" /><div><strong>BIG BUCKS FANTASY LEAGUE</strong><span>Season-long DFS. Built for big game hunters.</span></div></footer>
+  <footer>
+    <img src="logo.png" alt="" />
+    <div>
+      <strong>BIG BUCKS FANTASY LEAGUE</strong>
+      <span>Season-long DFS. Built for big game hunters.</span>
+    </div>
+  </footer>
 
   <script src="data.js"></script>
   <script src="app.js"></script>
