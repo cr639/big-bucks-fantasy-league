@@ -255,41 +255,6 @@ function calculateStandings() {
     return `${latest}${count}`;
   };
 
-  const headToHeadCompare = (a, b) => {
-    for (
-      let week = 1;
-      week <= REGULAR_SEASON_WEEKS;
-      week++
-    ) {
-      const games = league.schedule[week] || [];
-
-      const matchup = games.find(
-        ([x, y]) =>
-          (x === a.id && y === b.id) ||
-          (x === b.id && y === a.id)
-      );
-
-      if (!matchup) {
-        continue;
-      }
-
-      const sa = scoreFor(week, a.id);
-      const sb = scoreFor(week, b.id);
-
-      if (
-        sa === null ||
-        sb === null ||
-        sa === sb
-      ) {
-        return 0;
-      }
-
-      return sa > sb ? -1 : 1;
-    }
-
-    return 0;
-  };
-
   return Object.values(stats)
     .map((stat) => {
       const games =
@@ -305,13 +270,12 @@ function calculateStandings() {
         streak: streak(stat)
       };
     })
-    .sort(
-      (a, b) =>
-        b.winPct - a.winPct ||
-        b.pf - a.pf ||
-        headToHeadCompare(a, b) ||
-        a.name.localeCompare(b.name)
-    );
+.sort(
+  (a, b) =>
+    b.winPct - a.winPct ||
+    b.pf - a.pf ||
+    a.name.localeCompare(b.name)
+);
 }
 
 function totalPointsFor(teamId) {
