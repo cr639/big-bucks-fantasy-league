@@ -303,6 +303,181 @@ function recordText(stat) {
   return `${stat.w}-${stat.l}-${stat.t}`;
 }
 
+const standingsSorters = {
+  seed: (stat) => stat.seed,
+  name: (stat) => stat.name,
+  w: (stat) => stat.w,
+  l: (stat) => stat.l,
+  t: (stat) => stat.t,
+  winPct: (stat) => stat.winPct,
+  pf: (stat) => stat.pf,
+  pa: (stat) => stat.pa,
+  diff: (stat) => stat.pf - stat.pa,
+  streak: (stat) => {
+    const match = /^([WTL])(\d+)$/.exec(
+      stat.streak
+    );
+
+    if (!match) {
+      return -1;
+    }
+
+    const weights = { W: 3, T: 2, L: 1 };
+
+    return (
+      weights[match[1]] * 100 +
+      Number(match[2])
+    );
+  }
+};
+
+let standingsSort = {
+  key: null,
+  dir: -1
+};
+
+let currentStandings = [];
+
+function sortStandings(stats) {
+  const sorter =
+    standingsSort.key &&
+    standingsSorters[standingsSort.key];
+
+  if (!sorter) {
+    return stats;
+  }
+
+  const dir = standingsSort.dir;
+
+  return [...stats].sort((a, b) => {
+    const valueA = sorter(a);
+    const valueB = sorter(b);
+
+    const cmp =
+      standingsSort.key === 'name'
+        ? valueA.localeCompare(valueB)
+        : valueA - valueB;
+
+    return cmp * dir || a.seed - b.seed;
+  });
+}
+
+function standingsRowClass(stat) {
+  if (stat.seed <= 4) {
+    return 'row-playoff';
+  }
+
+  return stat.seed === 5
+    ? 'row-bubble'
+    : '';
+}
+
+function renderStandingsTable() {
+  $('#standingsBody').innerHTML =
+    sortStandings(currentStandings)
+      .map(
+        (stat) => `
+          <tr class="${standingsRowClass(stat)}">
+            <td>
+              <span class="seed-pill">
+                ${stat.seed}
+              </span>
+            </td>
+
+            <td>
+              <div class="team-cell">
+                <span class="team-icon">
+                  ${initials(
+                    stat.abbreviation ||
+                    stat.name
+                  )}
+                </span>
+
+                <div>
+                  ${stat.name}
+
+                  <div class="team-record">
+                    ${stat.owner || ''}
+                  </div>
+                </div>
+              </div>
+            </td>
+
+            <td>
+              <strong>${stat.w}</strong>
+            </td>
+
+            <td>${stat.l}</td>
+            <td>${stat.t}</td>
+
+            <td>
+              ${
+                stat.w +
+                  stat.l +
+                  stat.t
+                  ? `${(
+                      stat.winPct *
+                      100
+                    ).toFixed(1)}%`
+                  : '—'
+              }
+            </td>
+
+            <td>
+              ${stat.pf.toFixed(2)}
+            </td>
+
+            <td>
+              ${stat.pa.toFixed(2)}
+            </td>
+
+            <td>
+              ${(
+                stat.pf -
+                stat.pa
+              ).toFixed(2)}
+            </td>
+
+            <td>
+              ${stat.streak}
+            </td>
+          </tr>
+        `
+      )
+      .join('');
+
+  document
+    .querySelectorAll(
+      '.standings-table th[data-sort]'
+    )
+    .forEach((th) => {
+      const active =
+        th.dataset.sort ===
+        standingsSort.key;
+
+      th.classList.toggle(
+        'sorted-asc',
+        active &&
+          standingsSort.dir === 1
+      );
+
+      th.classList.toggle(
+        'sorted-desc',
+        active &&
+          standingsSort.dir === -1
+      );
+
+      th.setAttribute(
+        'aria-sort',
+        active
+          ? standingsSort.dir === 1
+            ? 'ascending'
+            : 'descending'
+          : 'none'
+      );
+    });
+}
+
 function renderMatchCard(
   a,
   b,
@@ -692,78 +867,15 @@ function render() {
       `
       : '';
 
-  $('#standingsBody').innerHTML =
-    standings
-      .map(
-        (stat, index) => `
-          <tr>
-            <td>
-              <span class="seed-pill">
-                ${index + 1}
-              </span>
-            </td>
+  standings.forEach(
+    (stat, index) => {
+      stat.seed = index + 1;
+    }
+  );
 
-            <td>
-              <div class="team-cell">
-                <span class="team-icon">
-                  ${initials(
-                    stat.abbreviation ||
-                    stat.name
-                  )}
-                </span>
+  currentStandings = standings;
 
-                <div>
-                  ${stat.name}
-
-                  <div class="team-record">
-                    ${stat.owner || ''}
-                  </div>
-                </div>
-              </div>
-            </td>
-
-            <td>
-              <strong>${stat.w}</strong>
-            </td>
-
-            <td>${stat.l}</td>
-            <td>${stat.t}</td>
-
-            <td>
-              ${
-                stat.w +
-                  stat.l +
-                  stat.t
-                  ? `${(
-                      stat.winPct *
-                      100
-                    ).toFixed(1)}%`
-                  : '—'
-              }
-            </td>
-
-            <td>
-              ${stat.pf.toFixed(2)}
-            </td>
-
-            <td>
-              ${stat.pa.toFixed(2)}
-            </td>
-
-            <td>
-              ${(
-                stat.pf -
-                stat.pa
-              ).toFixed(2)}
-            </td>
-
-            <td>
-              ${stat.streak}
-            </td>
-          </tr>
-        `
-      )
-      .join('');
+  renderStandingsTable();
 
   $('#teamsGrid').innerHTML =
     league.teams
@@ -1260,6 +1372,35 @@ $('#weekSelect')
           event.target.value
         )
       )
+  );
+
+document
+  .querySelectorAll(
+    '.standings-table th[data-sort]'
+  )
+  .forEach((th) =>
+    th.addEventListener(
+      'click',
+      () => {
+        const key = th.dataset.sort;
+
+        if (
+          standingsSort.key === key
+        ) {
+          standingsSort.dir =
+            -standingsSort.dir;
+        } else {
+          standingsSort.key = key;
+          standingsSort.dir =
+            key === 'seed' ||
+            key === 'name'
+              ? 1
+              : -1;
+        }
+
+        renderStandingsTable();
+      }
+    )
   );
 
 $('.nav-toggle')
