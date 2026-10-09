@@ -14,6 +14,7 @@ let league = {
   teams: [],
   schedule: {},
   scores: {},
+  weekStatus: {},
   currentWeek: 1
 };
 
@@ -133,29 +134,20 @@ function scoreFor(week, teamId) {
     : null;
 }
 
-function inferCurrentWeek() {
-  if (Object.keys(league.scores).length === 0) {
-    return 1;
-  }
+function weekStatusFor(week) {
+  return (
+    league.weekStatus[Number(week)] ||
+    'UPCOMING'
+  ).toUpperCase();
+}
 
+function inferCurrentWeek() {
   for (
     let week = 1;
     week <= REGULAR_SEASON_WEEKS;
     week++
   ) {
-    const games = league.schedule[week] || [];
-
-    if (!games.length) {
-      return week;
-    }
-
-    const weekComplete = games.every(
-      ([a, b]) =>
-        scoreFor(week, a) !== null &&
-        scoreFor(week, b) !== null
-    );
-
-    if (!weekComplete) {
+    if (weekStatusFor(week) !== 'FINAL') {
       return week;
     }
   }
@@ -183,6 +175,10 @@ function calculateStandings() {
     week <= REGULAR_SEASON_WEEKS;
     week++
   ) {
+    if (weekStatusFor(week) !== 'FINAL') {
+      continue;
+    }
+
     const games = league.schedule[week] || [];
 
     games.forEach(([a, b]) => {
@@ -291,7 +287,10 @@ function totalPointsFor(teamId) {
       teamId
     );
 
-    if (score !== null) {
+    if (
+      weekStatusFor(week) === 'FINAL' &&
+      score !== null
+    ) {
       total += score;
     }
   }
@@ -508,16 +507,30 @@ function renderMatchCard(
       t: 0
     };
 
-  const final =
-    scoreA !== null &&
+  const weekStatus =
+    weekStatusFor(week);
+
+  const hasScores =
+    scoreA !== null ||
     scoreB !== null;
+
+  const final =
+    weekStatus === 'FINAL';
+
+  const live =
+    weekStatus === 'LIVE' ||
+    (hasScores && !final);
 
   const winnerA =
     final &&
+    scoreA !== null &&
+    scoreB !== null &&
     scoreA > scoreB;
 
   const winnerB =
     final &&
+    scoreA !== null &&
+    scoreB !== null &&
     scoreB > scoreA;
 
   const line = (
@@ -552,7 +565,7 @@ function renderMatchCard(
     <article class="match-card">
       <div class="match-meta">
         <span>WEEK ${week}</span>
-        <span>${final ? 'FINAL' : 'UPCOMING'}</span>
+        <span>${final ? 'FINAL' : live ? 'LIVE' : 'UPCOMING'}</span>
       </div>
 
       ${line(teamA, scoreA, statA, winnerA)}
@@ -659,13 +672,16 @@ function render() {
   const weeklyLeader =
     currentWeekScores[0];
 
-  const completedGames =
+  const currentWeekStatus =
+    weekStatusFor(league.currentWeek);
+
+  const matchupsWithScores =
     currentGames.filter(
       ([a, b]) =>
         scoreFor(
           league.currentWeek,
           a
-        ) !== null &&
+        ) !== null ||
         scoreFor(
           league.currentWeek,
           b
@@ -676,9 +692,11 @@ function render() {
     `Week ${league.currentWeek}`;
 
   $('#weekStatusText').textContent =
-    completedGames
-      ? `${completedGames} of ${currentGames.length} matchups final.`
-      : 'All nine head-to-head matchups.';
+    currentWeekStatus === 'FINAL'
+      ? `Week ${league.currentWeek} is final.`
+      : currentWeekStatus === 'LIVE' || matchupsWithScores
+        ? `Week ${league.currentWeek} is LIVE • Scores updated throughout the week.`
+        : 'All nine head-to-head matchups.';
 
   $('#featuredMatchups').innerHTML =
     currentGames.length
@@ -1031,6 +1049,7 @@ function fallbackLeague() {
     teams: fallbackTeams,
     schedule: fallbackSchedule,
     scores: {},
+    weekStatus: {},
     currentWeek: 1
   };
 }
@@ -1117,6 +1136,8 @@ async function loadLeague() {
   let schedule =
     backup.schedule;
 
+  let weekStatus = {};
+
   if (
     scheduleResult.status ===
     'fulfilled'
@@ -1191,6 +1212,32 @@ async function loadLeague() {
               'Team 2 ID'
             )
           );
+
+        const matchup =
+          Number(
+            getValue(
+              row,
+              'Matchup'
+            )
+          );
+
+        const status =
+          String(
+            getValue(
+              row,
+              'Week Status'
+            ) || ''
+          )
+            .trim()
+            .toUpperCase();
+
+        if (
+          Number.isFinite(week) &&
+          matchup === 1 &&
+          ['UPCOMING', 'LIVE', 'FINAL'].includes(status)
+        ) {
+          weekStatus[week] = status;
+        }
 
         if (
           !Number.isFinite(
@@ -1332,6 +1379,7 @@ async function loadLeague() {
     teams,
     schedule,
     scores,
+    weekStatus,
     currentWeek: 1
   };
 
